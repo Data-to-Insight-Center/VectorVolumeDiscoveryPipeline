@@ -1,0 +1,2 @@
+# InsightX
+Vectorization for corpus
