@@ -1,0 +1,12 @@
+PyMuPDF
+transformers
+sentence-transformers
+psycopg2-binary
+sqlalchemy
+fastapi 
+uvicorn 
+torch
+pdf2image
+PILlow
+pgvector
+pymongo[srv]
