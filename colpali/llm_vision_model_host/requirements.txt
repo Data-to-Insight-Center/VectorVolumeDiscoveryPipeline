@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+Pillow
+torch
+transformers
+accelerate
+huggingface_hub
+requests
+pydantic
