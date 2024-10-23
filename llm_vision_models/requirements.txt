@@ -7,3 +7,8 @@ accelerate
 huggingface_hub
 requests
 pydantic
+colpali-engine
+stamina
+tqdm
+ollama
+requests

@@ -24,7 +24,8 @@ app = FastAPI()
 async def load_model():
     global model, processor
 
-    model_id = "google/paligemma-3b-mix-224"
+    # model_id = "google/paligemma-3b-mix-224"
+    model_id = "google/paligemma-3b-pt-448"
     device = "cuda:0"
     dtype = torch.bfloat16
     
