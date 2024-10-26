@@ -26,8 +26,9 @@ async def load_model():
 
     # model_id = "google/paligemma-3b-mix-224"
     model_id = "google/paligemma-3b-pt-448"
+    # model_id = "google/paligemma-3b-pt-896"
     device = "cuda:0"
-    dtype = torch.bfloat16
+    dtype = torch.float32
     
     try:
         model = PaliGemmaForConditionalGeneration.from_pretrained(
@@ -56,7 +57,7 @@ async def predict_image(request: ImageQueryRequest):
         input_len = model_inputs["input_ids"].shape[-1]
 
         with torch.inference_mode():
-            generation = model.generate(**model_inputs, max_new_tokens=500, do_sample=False)
+            generation = model.generate(**model_inputs, max_new_tokens=1024, do_sample=False)
             generation = generation[0][input_len:]
             decoded = processor.decode(generation, skip_special_tokens=True)
 
