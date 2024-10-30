@@ -9,8 +9,8 @@ colpali-engine
 stamina
 tqdm
 ollama
-requests
 pdf2image
 PyMuPDF
 qdrant-client
 python-multipart
+transformers
