@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ### 3. Navigate to the Model Directory
 
-In order to host colapi model and functionalities script, move into the below mentioned directory:
+In order to host colpali model and functionalities script, move into the below mentioned directory:
 
 ```
 cd colpali
