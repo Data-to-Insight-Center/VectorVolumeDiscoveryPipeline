@@ -15,7 +15,7 @@ Respond with ONLY one word - either 'CORRECT' or 'INCORRECT'."""
     return prompt
 
 def evaluate_responses(df):
-    client = anthropic.Client(api_key='aaa_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')
+    client = anthropic.Client(api_key='<API KEY HERE>')
     
     
     results = {
