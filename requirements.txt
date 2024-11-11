@@ -14,3 +14,10 @@ PyMuPDF
 qdrant-client
 python-multipart
 transformers
+sentence-transformers
+pandas 
+rouge-score 
+nltk
+scikit-learn
+evaluate
+anthropic
