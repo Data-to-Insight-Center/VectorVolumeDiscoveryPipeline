@@ -1,11 +1,8 @@
 fastapi
 uvicorn
 Pillow
-accelerate
-huggingface_hub
 requests
 pydantic
-colpali-engine
 stamina
 tqdm
 ollama
@@ -13,11 +10,12 @@ pdf2image
 PyMuPDF
 qdrant-client
 python-multipart
-transformers
-sentence-transformers
 pandas 
 rouge-score 
 nltk
 scikit-learn
 evaluate
 anthropic
+openai
+werkzeug
+streamlit_lottie

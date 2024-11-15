@@ -27,7 +27,7 @@
             },
             {
                 "question": "What sequence of actions will lead the vacuum agent from the state where both rooms are dirty to the state where both rooms are clean?",
-                "evaluation": "INCORRECT"
+                "evaluation": "CORRECT"
             },
             {
                 "question": "What conditions must be true for the decision to be 'Yes' when the type of restaurant is 'Thai'?",
@@ -39,11 +39,11 @@
             },
             {
                 "question": "At what stage does the kernel determine whether it can satisfy the I/O request without involving the device driver?",
-                "evaluation": "CORRECT"
+                "evaluation": "INCORRECT"
             },
             {
                 "question": "At what point in the communication process does an attacker potentially gain access to the ciphertext?",
-                "evaluation": "CORRECT"
+                "evaluation": "INCORRECT"
             },
             {
                 "question": "What is the output at O1 (carry bit) and X2 (sum) if the inputs are 1, 0, and 1 in the given one-bit full adder circuit?",
@@ -83,7 +83,7 @@
             },
             {
                 "question": "Why do you think the /proc file system is implemented as a pseudo file system in memory rather than as a regular file system on disk?",
-                "evaluation": "INCORRECT"
+                "evaluation": "CORRECT"
             },
             {
                 "question": "What is the main difference between counter-based tools and tracing tools in terms of data collection?",
@@ -111,7 +111,7 @@
             },
             {
                 "question": "In Monte Carlo Tree Search (MCTS), what is the purpose of the back-propagation step, and how does it impact the parent nodes in the search tree",
-                "evaluation": "INCORRECT"
+                "evaluation": "CORRECT"
             },
             {
                 "question": "How would you implement multiple threads in a web browser?",
@@ -127,7 +127,7 @@
             },
             {
                 "question": "What role do internal programmable registers play in relation to main memory, and how do they contribute to system efficiency?",
-                "evaluation": "INCORRECT"
+                "evaluation": "CORRECT"
             }
         ]
     },
@@ -155,11 +155,11 @@
             },
             {
                 "question": "How does the speedup vary with the number of processing cores for different values (0.05, 0.10, 0.50) of serial fraction (S)?",
-                "evaluation": "CORRECT"
+                "evaluation": "INCORRECT"
             },
             {
                 "question": "What sequence of actions will lead the vacuum agent from the state where both rooms are dirty to the state where both rooms are clean?",
-                "evaluation": "INCORRECT"
+                "evaluation": "CORRECT"
             },
             {
                 "question": "What conditions must be true for the decision to be 'Yes' when the type of restaurant is 'Thai'?",
@@ -259,7 +259,7 @@
             },
             {
                 "question": "What role do internal programmable registers play in relation to main memory, and how do they contribute to system efficiency?",
-                "evaluation": "INCORRECT"
+                "evaluation": "CORRECT"
             }
         ]
     },
@@ -391,7 +391,7 @@
             },
             {
                 "question": "What role do internal programmable registers play in relation to main memory, and how do they contribute to system efficiency?",
-                "evaluation": "INCORRECT"
+                "evaluation": "CORRECT"
             }
         ]
     },

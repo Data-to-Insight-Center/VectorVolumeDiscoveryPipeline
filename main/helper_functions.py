@@ -4,11 +4,39 @@ from PIL import Image
 from typing import List
 from pdf2image import convert_from_path
 from io import BytesIO
+import uuid
+import os
+from pathlib import Path
+
+def create_hash_folder(BASE_UPLOAD_DIRECTORY):
+    unique_id = uuid.uuid4().hex
+    folder_path = os.path.join(BASE_UPLOAD_DIRECTORY, unique_id)
+    Path(folder_path).mkdir(parents=True, exist_ok=True)
+    images_folder = os.path.join(folder_path, "images_to_process")
+    Path(images_folder).mkdir(parents=True, exist_ok=True)
+    return folder_path, images_folder
+
+def encode_images_base64(image_paths: List[str]) -> List[str]:
+    encoded_images = []
+    try:
+        for image_path in image_paths:
+            with open(image_path, "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                encoded_images.append(encoded_string)
+        
+        return encoded_images
+    except Exception as e:
+        raise Exception(f"Error encoding images to base64: {str(e)}")
+    
 
 def encode_image(image_path):
-    with open(image_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-    return encoded_string
+    try:
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        return encoded_string
+    except Exception as e:
+        raise Exception(f"Error encoding image to base64: {str(e)}")
+    
 
 def image_to_base64(image):
     buffered = BytesIO()
