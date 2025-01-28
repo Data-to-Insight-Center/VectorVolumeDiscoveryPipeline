@@ -9,12 +9,15 @@ import os
 from pathlib import Path
 
 def create_hash_folder(BASE_UPLOAD_DIRECTORY):
-    unique_id = uuid.uuid4().hex
-    folder_path = os.path.join(BASE_UPLOAD_DIRECTORY, unique_id)
-    Path(folder_path).mkdir(parents=True, exist_ok=True)
-    images_folder = os.path.join(folder_path, "images_to_process")
-    Path(images_folder).mkdir(parents=True, exist_ok=True)
-    return folder_path, images_folder
+    base_dir = Path(BASE_UPLOAD_DIRECTORY)
+    hash_value = uuid.uuid4().hex
+    hash_folder = base_dir / hash_value
+    images_folder = hash_folder / "images_to_process"
+    
+    hash_folder.mkdir(exist_ok=True)
+    images_folder.mkdir(exist_ok=True)
+    
+    return str(hash_folder), str(images_folder)
 
 def encode_images_base64(image_paths: List[str]) -> List[str]:
     encoded_images = []

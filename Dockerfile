@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -11,6 +11,6 @@ EXPOSE 8000
 
 ENV QDRANT_URI=''
 ENV COLPALI_URI=''
-ENV QDRANT_COLLECTION_NAME='all_textbooks_image_embeddings_v1'
+ENV QDRANT_COLLECTION_NAME=''
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

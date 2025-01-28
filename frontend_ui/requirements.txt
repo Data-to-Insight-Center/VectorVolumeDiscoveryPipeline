@@ -15,7 +15,10 @@ rouge-score
 nltk
 scikit-learn
 evaluate
+anthropic
+openai
 streamlit
 numpy
 werkzeug
 streamlit_lottie
+aiohttp

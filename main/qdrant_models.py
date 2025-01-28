@@ -3,6 +3,8 @@ import stamina
 from tqdm import tqdm
 from helper_functions import image_to_base64, load_images, encode_images_base64
 from colpali_models import ColPaliClient
+import uuid
+from pathlib import Path
 
 def create_qdrant_client(qdrant_uri):
     qdrant_client = QdrantClient(
@@ -82,7 +84,7 @@ def index_images_to_qdrant(images_paths, batch_size, collection_name, qdrant_uri
             batch_images_encoded = encode_images_base64(batch)
 
             # Retrieve Embeddings for the image using colpali model
-            embedding_results = colpali_client.get_embeddings(images=batch_images_encoded)
+            embedding_results = colpali_client.get_embeddings(images_encoded=batch_images_encoded)
             image_embeddings = embedding_results["image_embeddings"]
 
             # prepare points for Qdrant
@@ -91,10 +93,10 @@ def index_images_to_qdrant(images_paths, batch_size, collection_name, qdrant_uri
             for j, embedding in enumerate(image_embeddings):
                 points.append(
                     models.PointStruct(
-                        id=global_id,
+                        id= uuid.uuid4().hex,
                         vector=embedding,
                         payload={
-                            "image": batch[j]
+                            "image": Path(batch[j]).as_posix()
                         },
                     )
                 )

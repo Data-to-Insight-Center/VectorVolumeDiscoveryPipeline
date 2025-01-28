@@ -5,6 +5,11 @@ from PIL import Image
 from io import BytesIO
 from database import init_db, add_user, verify_user
 from streamlit_lottie import st_lottie
+from concurrent.futures import ThreadPoolExecutor
+from anthropic_client   import AnthropicClient
+import os
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 st.set_page_config(
         page_title="Document Search System",
@@ -15,12 +20,11 @@ st.set_page_config(
 init_db()
 
 # Backend API URL
-BACKEND_URL = "http://localhost:8000"
+BACKEND_URL = "http://127.0.0.1:8000"
 
 def load_lottiefile(filepath: str):
     with open(filepath, "r") as file:
         return json.load(file)
-
 
 lottie_animation = load_lottiefile("Animation - 1731620804494.json")
 
@@ -143,14 +147,16 @@ def main():
     
     st.sidebar.write(f"Welcome, {st.session_state['username']}!")
     
-    page = st.sidebar.radio("Choose a page", ["Document Upload", "Image Search", "Qdrant Collections"])
+    page = st.sidebar.radio("Choose a page", ["Image Search", "Qdrant Collections", "Index Images"])
 
-    if page == "Document Upload":
-        document_upload_page()
-    elif page == "Image Search":
+    # if page == "Document Upload":
+    #     document_upload_page()
+    if page == "Image Search":
         image_search_page()
     elif page == "Qdrant Collections":
         qdrant_collections_page()
+    elif page == "Index Images":
+        document_upload_page()
 
 # Images embed and indexing to Qdrant vector store
 def document_upload_page():
@@ -203,8 +209,6 @@ def image_search_page():
                         for idx, (img_path, score) in enumerate(zip(image_paths[:3], scores[:3])):
                             try:
                                 with cols[idx]:
-                                    img_path = '' + img_path # to update with the local image folder path
-                                    print(f"{img_path}") 
                                     image = Image.open(img_path)
                                     
                                     st.image(image, 
@@ -222,8 +226,52 @@ def image_search_page():
 
                             except Exception as e:
                                 st.error(f"Error loading image {img_path}: {str(e)}")
-                    
-                        if not image_paths:
+
+                         # Start async LLM response generation
+                        if image_paths:
+                            try:
+                                # Create a placeholder for the response
+                                llm_response_placeholder = st.empty()
+                                llm_response_placeholder.info("Generating response...")
+
+                                # Initialize Anthropic client
+                                client = AnthropicClient(api_key=ANTHROPIC_API_KEY)
+
+                                # Prepare the prompt
+                                prompt = f"""You are an expert in interpreting and understanding the content in the images. Using the image as a reference, answer then question. Be very straight to the point and do not include additional information. Here is the question: {query}"""
+
+                                def get_llm_response():
+                                    return client.send_message(
+                                        content=prompt,
+                                        image_paths=image_paths,
+                                        max_tokens=1000,
+                                        temperature=0
+                                    )
+
+                                # Use ThreadPoolExecutor for non-blocking execution
+                                with ThreadPoolExecutor() as executor:
+                                    future = executor.submit(get_llm_response)
+                                    
+                                    # Get the response
+                                    response = future.result()
+                                    
+                                    if response['status']:
+                                        # Update the placeholder with the response
+                                        llm_response_placeholder.markdown(
+                                            f"""
+                                            **Response:**
+                                            {response['result']}
+                                            """
+                                        )
+                                    else:
+                                        llm_response_placeholder.error(
+                                            f"Failed to generate response: {response.get('error', 'Unknown error')}"
+                                        )
+
+                            except Exception as e:
+                                llm_response_placeholder.error(f"An error occurred: {str(e)}")
+
+                        else:
                             st.warning("No matching images found.")
                     else:
                         st.error(f"Error: {response.json().get('detail', 'Unknown error occurred')}")
@@ -232,11 +280,11 @@ def image_search_page():
         else:
             st.warning("Please enter a search query")
 
-    with st.expander("Search Tips"):
-        st.write("""
-        - Enter descriptive keywords for better results
-        - The similarity score indicates how well the image matches your query
-        """)
+    # with st.expander("Search Tips"):
+    #     st.write("""
+    #     - Enter descriptive keywords for better results
+    #     - The similarity score indicates how well the image matches your query
+    #     """)
 
 def qdrant_collections_page():
     st.header("Qdrant Collections Management")
