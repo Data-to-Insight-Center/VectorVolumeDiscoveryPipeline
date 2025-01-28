@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from pathlib import Path
+from fastapi.middleware.cors import CORSMiddleware
 # from dotenv import load_dotenv
 
 from helper_functions import convert_pdf_to_images, extract_images_and_names_from_zip, create_hash_folder
@@ -14,7 +15,7 @@ COLPALI_URI = os.getenv("COLPALI_URI")
 QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME")
 
 # directory to save input files
-BASE_UPLOAD_DIRECTORY = "app_input_files" # update this base directory
+BASE_UPLOAD_DIRECTORY = "" # update this base directory
 
 # creating base directory if it does not exists
 Path(BASE_UPLOAD_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -32,6 +33,15 @@ class QdrantCollectionDelete(BaseModel):
 
 # Initialize the FastAPI app
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Endpoint to create collection in qdrant
 # @app.post("/create_qdrant_collection")

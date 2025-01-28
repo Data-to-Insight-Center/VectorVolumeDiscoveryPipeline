@@ -20,7 +20,7 @@ st.set_page_config(
 init_db()
 
 # Backend API URL
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "http://backend:8000"
 
 def load_lottiefile(filepath: str):
     with open(filepath, "r") as file:
