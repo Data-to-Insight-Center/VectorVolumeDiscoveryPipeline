@@ -15,7 +15,7 @@ COLPALI_URI = os.getenv("COLPALI_URI")
 QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME")
 
 # directory to save input files
-BASE_UPLOAD_DIRECTORY = "" # update this base directory
+BASE_UPLOAD_DIRECTORY = os.getenv('BASE_UPLOAD_DIR', '') # update this base directory
 
 # creating base directory if it does not exists
 Path(BASE_UPLOAD_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -28,8 +28,8 @@ class QdrantCollectionCreate(BaseModel):
     vector_size: int
     indexing_threshold: int
 
-class QdrantCollectionDelete(BaseModel):
-    collection_name: str
+# class QdrantCollectionDelete(BaseModel):
+#     collection_name: str
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -44,9 +44,9 @@ app.add_middleware(
 )
 
 # Endpoint to create collection in qdrant
-# @app.post("/create_qdrant_collection")
-# async def qdrant_create_collection(request: QdrantCollectionCreate):
-#     return create_qdrant_collection(QDRANT_URI, request.collection_name, request.vector_size, request.indexing_threshold)
+@app.post("/create_qdrant_collection")
+async def qdrant_create_collection(request: QdrantCollectionCreate):
+    return create_qdrant_collection(QDRANT_URI, request.collection_name, request.vector_size, request.indexing_threshold)
 
 # Endpoint to delete collection in qdrant
 # @app.post("/delete_qdrant_collection")
@@ -54,9 +54,9 @@ app.add_middleware(
 #     return delete_qdrant_collection(QDRANT_URI, request.collection_name)
 
 # Endpoint to delete collection in qdrant
-# @app.post("/get_qdrant_collections")
-# async def qdrant_list_collections():
-#     return list_qdrant_collections(QDRANT_URI)
+@app.post("/get_qdrant_collections")
+async def qdrant_list_collections():
+    return list_qdrant_collections(QDRANT_URI)
 
 
 # ENDPOINT TO INDEX THE IMAGES TO QDRANT

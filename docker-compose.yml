@@ -9,7 +9,9 @@ services:
     networks:
       - my-app-network
     volumes:
-      - ./backend:/app
+      - <directory path to upload the images>:<directory path to upload the images>
+    environment:
+      - BASE_UPLOAD_DIR=<directory path to upload the images>
 
   frontend:
     build:
@@ -22,7 +24,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend_ui:/app
+      - <directory path of the indexed images>:<directory path of the indexed images>
 
 networks:
   my-app-network:

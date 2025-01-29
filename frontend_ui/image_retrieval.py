@@ -8,6 +8,7 @@ from streamlit_lottie import st_lottie
 from concurrent.futures import ThreadPoolExecutor
 from anthropic_client   import AnthropicClient
 import os
+from pathlib import Path
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
@@ -147,13 +148,13 @@ def main():
     
     st.sidebar.write(f"Welcome, {st.session_state['username']}!")
     
-    page = st.sidebar.radio("Choose a page", ["Image Search", "Qdrant Collections", "Index Images"])
+    page = st.sidebar.radio("Choose a page", ["Index Images", "Smart Search", "Qdrant Collections Management"])
 
     # if page == "Document Upload":
     #     document_upload_page()
-    if page == "Image Search":
+    if page == "Smart Search":
         image_search_page()
-    elif page == "Qdrant Collections":
+    elif page == "Qdrant Collections Management":
         qdrant_collections_page()
     elif page == "Index Images":
         document_upload_page()
@@ -161,12 +162,14 @@ def main():
 # Images embed and indexing to Qdrant vector store
 def document_upload_page():
     st.header("Document Upload")
-    st.write("Upload PDF, ZIP, or image files to index them in the database.")
+    st.write("Upload image file to index in the database")
     
     uploaded_file = st.file_uploader(
         "Choose a file", 
-        type=['pdf', 'zip', 'png', 'jpg', 'jpeg'],
-        help="Supported formats: PDF, ZIP (containing images), PNG, JPG, JPEG"
+        # type=['pdf', 'zip', 'png', 'jpg', 'jpeg'],
+        type=['png', 'jpg', 'jpeg'],
+        # help="Supported formats: PDF, ZIP (containing images), PNG, JPG, JPEG"
+        help="Supported formats: PNG, JPG, JPEG"
     )
     
     if uploaded_file is not None:
@@ -184,13 +187,14 @@ def document_upload_page():
                     st.error(f"An error occurred: {str(e)}")
 
 # Image Retrieval
+
 def image_search_page():
-    st.header("Image Search")
-    st.write("Search for relevant images using text queries.")
+    st.header("Smart Search")
+    st.write("AI-powered image search for text queries and Answer generation")
     
     query = st.text_input("Enter your search query")
     
-    if st.button("Search"):
+    if st.button("Submit"):
         if query:
             with st.spinner("Searching for relevant images..."):
                 try:
@@ -204,31 +208,21 @@ def image_search_page():
                         image_paths = response_data.get('retrieved_image_paths', [])
                         scores = response_data.get('scores', [])
 
-                        cols = st.columns(3)
+                        # First check if images are found
+                        if not image_paths:
+                            st.warning("No matching images found.")
+                            return
+
+                        # uncomment the below and update the directory path which contains the indexed images
+                        # image_paths = ['<directory containing the indexed images>' + img_path.split('/')[-1] if not img_path.startswith("/home") else img_path for img_path in image_paths]
                         
-                        for idx, (img_path, score) in enumerate(zip(image_paths[:3], scores[:3])):
-                            try:
-                                with cols[idx]:
-                                    image = Image.open(img_path)
-                                    
-                                    st.image(image, 
-                                           caption=f"Similarity Score: {score:.2f}",
-                                           use_container_width=True)
-                                    
-                                    # Add download button for each image
-                                    # with open(img_path, "rb") as file:
-                                    #     st.download_button(
-                                    #         label="Download Image",
-                                    #         data=file,
-                                    #         file_name=img_path.split('/')[-1],
-                                    #         mime="image/jpeg"
-                                    #     )
+                        # Create a container for LLM response
+                        llm_container = st.container()
+                        # Create a separate container for images
+                        image_container = st.container()
 
-                            except Exception as e:
-                                st.error(f"Error loading image {img_path}: {str(e)}")
-
-                         # Start async LLM response generation
-                        if image_paths:
+                        # Handle LLM Response First
+                        with llm_container:
                             try:
                                 # Create a placeholder for the response
                                 llm_response_placeholder = st.empty()
@@ -259,7 +253,7 @@ def image_search_page():
                                         # Update the placeholder with the response
                                         llm_response_placeholder.markdown(
                                             f"""
-                                            **Response:**
+                                            **AI Response:**
                                             {response['result']}
                                             """
                                         )
@@ -271,8 +265,32 @@ def image_search_page():
                             except Exception as e:
                                 llm_response_placeholder.error(f"An error occurred: {str(e)}")
 
-                        else:
-                            st.warning("No matching images found.")
+                        # Display Images in separate container
+                        with image_container:
+                            st.markdown("### Relevant Images")
+                            cols = st.columns(3)
+                            
+                            for idx, (img_path, score) in enumerate(zip(image_paths[:3], scores[:3])):
+                                try:
+                                    with cols[idx]:
+                                        image = Image.open(img_path)
+                                        
+                                        st.image(image, 
+                                               caption=f"Similarity Score: {score:.2f}",
+                                               use_container_width=True)
+                                        
+                                        # Add download button for each image if needed
+                                        # with open(img_path, "rb") as file:
+                                        #     st.download_button(
+                                        #         label="Download Image",
+                                        #         data=file,
+                                        #         file_name=img_path.split('/')[-1],
+                                        #         mime="image/jpeg"
+                                        #     )
+
+                                except Exception as e:
+                                    st.error(f"Error loading image {img_path}: {str(e)}")
+
                     else:
                         st.error(f"Error: {response.json().get('detail', 'Unknown error occurred')}")
                 except Exception as e:
@@ -329,25 +347,24 @@ def qdrant_collections_page():
                     st.info("No collections found")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
-    
 
-    st.subheader("Delete Collection")
-    collection_to_delete = st.text_input("Enter collection name to delete")
-    if st.button("Delete Collection"):
-        if collection_to_delete:
-            try:
-                response = requests.post(
-                    f"{BACKEND_URL}/delete_qdrant_collection",
-                    json={"collection_name": collection_to_delete}
-                )
-                if response.status_code == 200:
-                    st.success(f"Collection '{collection_to_delete}' deleted successfully!")
-                else:
-                    st.error(f"Error: {response.json()['detail']}")
-            except Exception as e:
-                st.error(f"An error occurred: {str(e)}")
-        else:
-            st.warning("Please enter a collection name to delete")
+    # st.subheader("Delete Collection")
+    # collection_to_delete = st.text_input("Enter collection name to delete")
+    # if st.button("Delete Collection"):
+    #     if collection_to_delete:
+    #         try:
+    #             response = requests.post(
+    #                 f"{BACKEND_URL}/delete_qdrant_collection",
+    #                 json={"collection_name": collection_to_delete}
+    #             )
+    #             if response.status_code == 200:
+    #                 st.success(f"Collection '{collection_to_delete}' deleted successfully!")
+    #             else:
+    #                 st.error(f"Error: {response.json()['detail']}")
+    #         except Exception as e:
+    #             st.error(f"An error occurred: {str(e)}")
+    #     else:
+    #         st.warning("Please enter a collection name to delete")
 
 if __name__ == "__main__":
     main()
