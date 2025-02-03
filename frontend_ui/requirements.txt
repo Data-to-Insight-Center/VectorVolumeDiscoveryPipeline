@@ -22,3 +22,5 @@ numpy
 werkzeug
 streamlit_lottie
 aiohttp
+psycopg2-binary
+streamlit-modal

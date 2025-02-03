@@ -121,13 +121,19 @@ async def get_relevant_documents(request: ImageRetrievalRequest):
         
         scores = [r.score for r in search_result.points]
         
-        row_image_paths = [r.payload["image"] for r in search_result.points]
+        image_points = [r.payload for r in search_result.points]
+
+        retrieved_points_with_scores = []
+        for point, score in zip(image_points, scores):
+            point_with_score = point.copy()
+            point_with_score['score'] = score
+            retrieved_points_with_scores.append(point_with_score)
 
         response = {
-            "retrieved_image_paths": row_image_paths,
-            "scores":scores
+            "retrieved_image_points": retrieved_points_with_scores
         }
         print("Relevant images retreived")
+
         return response
 
         # return FileResponse(row_image_paths[0])

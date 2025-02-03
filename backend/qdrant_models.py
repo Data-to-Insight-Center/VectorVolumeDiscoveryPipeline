@@ -125,7 +125,7 @@ def search_qdrant(collection_name, user_query, qdrant_uri, colpali_url, top_k=3)
         search_result = qdrant_client.query_points(
             collection_name=collection_name, 
             query=query_embeddings[0], 
-            with_payload=["image"],
+            with_payload=["image","ISBN","page_number"],
             limit=top_k
         )
         
