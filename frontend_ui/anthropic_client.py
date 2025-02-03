@@ -76,7 +76,7 @@ class AnthropicClient:
         if image_paths:
             for img_path in image_paths:
                 try:
-                    base64_image = self._encode_image(img_path)
+                    base64_image = self._encode_image(img_path.get('image', ''))
                     message_content.append({
                         "type": "image",
                         "source": {

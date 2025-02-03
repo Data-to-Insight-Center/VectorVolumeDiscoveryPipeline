@@ -9,11 +9,10 @@ from concurrent.futures import ThreadPoolExecutor
 from anthropic_client   import AnthropicClient
 import os
 from pathlib import Path
-from streamlit_modal import Modal
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-SOURCE_DATA_DIRECTORY = ''
-SOURCE_THUMBNAIL_DIRECTORY = ''
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", '')
+SOURCE_DATA_DIRECTORY = os.getenv("SOURCE_DATA_DIRECTORY", '')
+SOURCE_THUMBNAIL_DIRECTORY = os.getenv("SOURCE_THUMBNAIL_DIRECTORY", '')
 
 st.set_page_config(
         page_title="Document Search System",
@@ -60,57 +59,6 @@ st.markdown("""
         color: #1E3D59 !important;
         margin-bottom: 10px !important;
     }
-    .search-container {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 15px 0;
-        border: 1px solid #e9ecef;
-    }
-    .metadata-modal {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .modal-content {
-        background-color: white;
-        padding: 20px;
-        border-radius: 10px;
-        max-width: 800px;
-        width: 90%;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-    }
-    
-    .modal-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 24px;
-        cursor: pointer;
-        color: #666;
-    }
-    
-    .modal-header {
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #eee;
-    }
     .section-header {
         font-size: 28px !important;
         font-weight: bold !important;
@@ -126,23 +74,6 @@ st.markdown("""
         color: #666666 !important;
         margin: 5px 0 !important;
         line-height: 1.5 !important;
-    }
-    .page-info {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 5px;
-        margin-top: 10px;
-        font-size: 14px;
-        text-align: center;
-    }
-    .score-badge {
-        background-color: #1E3D59;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-size: 12px;
-        margin-top: 5px;
-        display: inline-block;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -279,81 +210,8 @@ def document_upload_page():
                     st.error(f"An error occurred: {str(e)}")
 
 
-# def show_metadata_modal(metadata):
-#     """Display metadata in a modal dialog"""
-#     with st.container():
-#         # Create a semi-transparent overlay
-#         st.markdown("""
-#             <div style="
-#                 position: fixed;
-#                 top: 0;
-#                 left: 0;
-#                 width: 100%;
-#                 height: 100%;
-#                 background-color: rgba(0, 0, 0, 0.5);
-#                 z-index: 1000;
-#             "></div>
-#         """, unsafe_allow_html=True)
-        
-#         # Create the modal content
-#         st.markdown("""
-#             <div style="
-#                 position: fixed;
-#                 top: 50%;
-#                 left: 50%;
-#                 transform: translate(-50%, -50%);
-#                 background-color: white;
-#                 padding: 20px;
-#                 border-radius: 10px;
-#                 width: 80%;
-#                 max-height: 80vh;
-#                 overflow-y: auto;
-#                 z-index: 1001;
-#             ">
-#         """, unsafe_allow_html=True)
-        
-#         # Modal content
-#         st.markdown("### Textbook Metadata")
-#         st.markdown("---")
-        
-#         col_img, col_info = st.columns([1, 2])
-#         with col_img:
-#             if os.path.exists(metadata['thumbnail_location']):
-#                 st.image(metadata['thumbnail_location'], width=200)
-#             else:
-#                 st.write("Thumbnail not available")
-        
-#         with col_info:
-#             st.markdown(f"**Title:** {metadata['title']}")
-#             st.markdown(f"**Authors:** {', '.join(metadata['main_authors'])}")
-#             st.markdown(f"**Publisher:** {metadata['publisher']}")
-#             st.markdown(f"**Year:** {metadata['published_year']}")
-#             st.markdown(f"**Edition:** {metadata['edition']}")
-        
-#         st.markdown("### Additional Information")
-#         st.markdown(f"**Related Authors:** {', '.join(metadata['related_authors'])}")
-#         st.markdown(f"**Languages:** {', '.join(metadata['languages'])}")
-#         st.markdown(f"**Subjects:** {', '.join(metadata['subjects'])}")
-        
-#         st.markdown("### Summary")
-#         st.write(metadata['summary'])
-        
-#         if st.button("Close", key="close_modal"):
-#             st.session_state.show_modal = False
-#             st.rerun()
-        
-#         st.markdown("</div>", unsafe_allow_html=True)
 
 def display_search_results(results, query):
-
-    # Initialize modal
-    modal = Modal(key="metadata_modal", title="Metadata")
-
-    # Initialize session state for modal control if not exists
-    if 'show_modal' not in st.session_state:
-        st.session_state.show_modal = False
-        st.session_state.current_metadata = None
-
     # Group results by ISBN
     grouped_results = {}
     retrieved_points = results.get('retrieved_image_points', [])
@@ -365,13 +223,7 @@ def display_search_results(results, query):
                 'metadata': metadata,
                 'pages': []
             }
-
-        if not item['image'].startswith("/home"):
-            image_path = SOURCE_DATA_DIRECTORY + item['image'].split('/')[-1]
-        else:
-            image_path = SOURCE_DATA_DIRECTORY + item['image'].split('/')[-1]
-
-        grouped_results[isbn]['pages'].append({'path': image_path, 'score': item['score'],'page_number': item['page_number']})
+        grouped_results[isbn]['pages'].append({'path': item['image'], 'score': item['score'],'page_number': item['page_number']})
 
     # Display textbook results
     st.markdown('<h2 class="section-header">Search Results</h2>', unsafe_allow_html=True)
@@ -381,70 +233,28 @@ def display_search_results(results, query):
         metadata['thumbnail_location'] = SOURCE_THUMBNAIL_DIRECTORY + metadata['thumbnail_location'].split('/')[-1]
         
         with st.container():
-            col1, col2, col3 = st.columns([1, 2, 1])
+            col1, col2 = st.columns([1, 4])
             
             with col1:
                 if os.path.exists(metadata['thumbnail_location']):
                     st.image(metadata['thumbnail_location'], width=150)
-            
+
             with col2:
-                st.markdown(f'<div class="search-title">{metadata["title"]}</div>', unsafe_allow_html=True)
+                summary = metadata["summary"] if metadata["summary"] else 'N/A'
                 st.markdown(
+                    f'<div style="height: 180px; overflow-y: auto; padding: 15px; background-color: #f8f9fa; border-radius: 10px;">'
+                    f'<div class="search-title">{metadata["title"]}</div>'
                     f'<div class="search-metadata">'
                     f'<strong>Authors:</strong> {", ".join(metadata["main_authors"] + metadata["related_authors"])}<br>'
-                    f'<strong>Publisher:</strong> {metadata["published_year"]}<br>'
-                    f'<strong>Edition:</strong> {metadata["edition"]}'
+                    f'<strong>Published:</strong> {metadata["publisher"]} ({metadata["published_year"]})<br>'
+                    f'<strong>Edition:</strong> {metadata["edition"]}<br>'
+                    f'<strong>Language(s):</strong> {", ".join(metadata["languages"])}<br>'
+                    f'<strong>Subjects:</strong> {", ".join(metadata["subjects"])}<br>'
+                    f'<strong>Summary:</strong> {summary}<br>'
+                    f'</div>'
                     f'</div>',
                     unsafe_allow_html=True
                 )
-
-            with col3:
-                open_modal = st.button(label='View Metadata')
-                if open_modal:
-                # if st.button("View Metadata", key=f"view_metadata_{isbn}"):
-                    print("View metadata button called!")
-                    with modal.container():
-                        col_img, col_info = st.columns([1, 2])
-                        
-                        with col_img:
-                            if os.path.exists(metadata['thumbnail_location']):
-                                st.image(metadata['thumbnail_location'], width=200)
-                            else:
-                                st.write("Thumbnail not available")
-                        
-                        with col_info:
-                            st.markdown(f"**Title:** {metadata['title']}")
-                            st.markdown(f"**Authors:** {', '.join(metadata['main_authors'])}")
-                            st.markdown(f"**Publisher:** {metadata['publisher']}")
-                            st.markdown(f"**Year:** {metadata['published_year']}")
-                            st.markdown(f"**Edition:** {metadata['edition']}")
-                        
-                        st.markdown("### Additional Information")
-                        st.markdown(f"**Related Authors:** {', '.join(metadata['related_authors'])}")
-                        st.markdown(f"**Languages:** {', '.join(metadata['languages'])}")
-                        st.markdown(f"**Subjects:** {', '.join(metadata['subjects'])}")
-                        
-                        st.markdown("### Summary")
-                        st.write(metadata['summary'])
-
-            # ------
-            # with col3:
-            #     if st.button("View Metadata", key=f"view_metadata_{isbn}"):
-            #         print("view metadata button pressed!")
-            #         show_metadata_modal(metadata)
-            # with col3:
-            #     button_key = f"view_metadata_{isbn}"  # Create unique key
-            #     print(f"Creating button with key: {button_key}")  # Debug print
-                
-            #     if st.button("View Metadata"):
-            #         print(f"Button clicked for ISBN: {isbn}")  # Debug print
-            #         st.session_state.show_modal = True
-            #         st.session_state.current_metadata = metadata
-            #         st.rerun()
-
-    # Show modal if triggered
-    # if st.session_state.show_modal and st.session_state.current_metadata:
-    #     show_metadata_modal(st.session_state.current_metadata)
 
     # Display top 3 relevant pages across all books
     if grouped_results:
@@ -506,13 +316,58 @@ def image_search_page():
                     if response.status_code == 200:
                         results = response.json()
                         if results:
+                            for item in results.get('retrieved_image_points', []):
+                                if not item['image'].startswith("/home"):
+                                    item['image'] = SOURCE_DATA_DIRECTORY + item['image'].split('/')[-1]
+                                else:
+                                    item['image'] = SOURCE_DATA_DIRECTORY + item['image'].split('/')[-1]
+
                             # Generate and display AI response
                             with st.container():
                                 st.markdown('<h2 class="section-header">AI Generated Response</h2>', unsafe_allow_html=True)
                                 with st.spinner("Generating answer..."):
-                                    # Your existing AI response generation code here
-                                    pass
+                                    try:
+                                        # Initialize Anthropic client
+                                        client = AnthropicClient(api_key=ANTHROPIC_API_KEY)
 
+                                        # Prepare the prompt
+                                        prompt = f"""You are an expert in interpreting and understanding the content in the images. Using the image as a reference, answer then question. Be very straight to the point and do not include additional information. Here is the question: {query}"""
+
+                                        def get_llm_response():
+                                            return client.send_message(
+                                                content=prompt,
+                                                image_paths=results.get('retrieved_image_points', []),
+                                                max_tokens=1000,
+                                                temperature=0
+                                            )
+
+                                        # Use ThreadPoolExecutor for non-blocking execution
+                                        with ThreadPoolExecutor() as executor:
+                                            future = executor.submit(get_llm_response)
+
+                                            # Get the response
+                                            response = future.result()
+
+                                            if response['status']:
+                                                st.markdown(
+                                                    f'<div class="search-metadata" style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; height: 200px; overflow-y: auto;">'
+                                                    f'{response["result"]}'
+                                                    f'</div>',
+                                                    unsafe_allow_html=True)
+                                            else:
+                                                st.markdown(
+                                                    f'<div class="search-metadata" style="color: #FF0000;">'
+                                                    f'Failed to generate response: {response.get("error", "Unknown error")}'
+                                                    f'</div>',
+                                                    unsafe_allow_html=True
+                                                )
+                                    except Exception as e:
+                                        st.markdown(
+                                            f'<div class="search-metadata" style="color: #FF0000;">'
+                                            f'An error occurred: {str(e)}'
+                                            f'</div>',
+                                            unsafe_allow_html=True
+                                        )
                             
                             # Display search results
                             display_search_results(results, query)
