@@ -1,9 +1,9 @@
-
-# InsightX: Image Embeddings - Textbook Discoverability
+#Vector Volume Discovery Pipeline
 
 ## Overview
 
-This repository provides instructions and scripts to host Image retrieval COLPALI model script (includes endpoints for different embedding and retrieval functionalities) and two large language models with vision capabilities: **LLaMA 3.2 Vision** and **Paligemma**. These models can be hosted on a server to provide inference capabilities through an API.
+This repository is a workflow for discoverability of multi-modal content as embedded vectors in a QDrant database.  It uses the ColPali model, a Vision Language Model to
+produce multi-vector embeddings from images of document pages. ColPali uses the PaliGemma-3B model, which combines SigLIP patch embeddings with a Gemma-2B language model, to generate ColBERT-style multi-vector representations of text and images. The vectors are available through a QDrant vector store.  
 
 ## Prerequisites
 
