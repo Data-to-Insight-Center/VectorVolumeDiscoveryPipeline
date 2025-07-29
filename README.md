@@ -1,7 +1,5 @@
 # Vector Volume Discovery Pipeline
 
-## Overview
-
 This repository is a workflow for discoverability of multi-modal content as embedded vectors in a QDrant database.  It uses the ColPali model, a Vision Language Model to
 produce multi-vector embeddings from images of document pages. ColPali uses the PaliGemma-3B model, which combines SigLIP patch embeddings with a Gemma-2B language model, to generate ColBERT-style multi-vector representations of text and images. The vectors are available through a QDrant vector store.  
 
